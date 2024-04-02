@@ -1,0 +1,141 @@
+--select last_name || ' , ' || first_name "Nume si prenume" FROM employees;
+
+--SELECT UNIQUE job_id FROM employees;
+
+--ex 8
+--select last_name || ' , ' || first_name "Nume si prenume", department_id FROM employees WHERE employee_id = 104;
+
+--ex 9 var 1 (cu operatori <, >, >=, <=)
+
+--SELECT last_name, salary FROM employees WHERE salary < 1400 or salary > 10000;
+
+--ex 9 var 2(BETWEEN /  NOT BETWEEN)
+
+SELECT last_name, salary FROM employees WHERE salary not between 1400 and 10000;
+--BETWEEN afiseaza intervalul inchis
+--NOT BETWEEN afisseaza intervalul deschis
+
+--ex10
+SELECT last_name, job_id, hire_date 
+FROM employees
+WHERE hire_date between '20-feb-87' and '01-may-89'
+ORDER BY hire_date;
+
+--METODE DE SORTARE
+->sortare folosind numarul coloanei din clauza select
+
+SELECT last_name, job_id, hire_date 
+FROM employees
+WHERE hire_date between '20-feb-87' and '01-may-89'
+ORDER BY 3;
+
+->sortare cu alias
+SELECT last_name, job_id, hire_date Data
+FROM employees
+WHERE hire_date between '20-feb-87' and '01-may-89'
+ORDER BY Data;
+
+ex 11
+SELECT last_name, department_id
+FROM employees
+WHERE department_id IN (10, 30)
+ORDER BY 1;
+
+ex 11 in plus
+SELECT last_name, department_id
+FROM employees
+WHERE department_id IN (10, 30, 50, 80)
+ORDER BY 1, 2; --taylor
+
+Exista si operatorul NOT IN
+SELECT last_name, department_id
+FROM employees
+WHERE department_id NOT IN (10, 30)
+ORDER BY 1;
+
+
+ex 12
+SELECT employee_id, last_name "Angajat", salary "Salariu lunar" 
+FROM employees
+WHERE salary > 1500 and department_id IN (10, 30);
+
+--TO_CHAR(data, format) - transforma o data calendaristica in CHAR dupa un anumit format
+
+SELECT TO_CHAR(SYSDATE, 'DD')
+FROM DUAL;
+
+SELECT TO_CHAR(SYSDATE, 'MM')
+FROM DUAL;
+
+SELECT TO_CHAR(SYSDATE, 'HH24 MI SS')
+FROM DUAL;
+
+--ex18
+SELECT last_name 
+FROM employees
+WHERE last_name like '__a%'; --case sensitive
+
+
+SELECT last_name 
+FROM employees
+WHERE upper(last_name) like '__A%'; 
+
+Exista si lower
+
+SELECT last_name 
+FROM employees
+WHERE lower(last_name) like '__a%';
+
+Exista si initcap
+
+SELECT last_name 
+FROM employees
+WHERE initcap(last_name) like '__a%'; --converteste prima litera intr o litera scrisa cu majuscule
+
+ex14
+SELECT last_name, hire_date
+FROM employees
+WHERE hire_date LIKE ('%87%');
+
+--var 2 (mai buna)
+SELECT last_name, hire_date
+FROM employees
+WHERE TO_CHAR(hire_date, 'YYYY') = '1987';
+
+--- se realizeaza o conversie implicita
+SELECT last_name, hire_date
+FROM employees
+WHERE TO_CHAR(hire_date, 'YYYY') = 1987;
+
+--ex 19
+SELECT employee_id, last_name, manager_id, department_id
+from employees
+where ('%L%L%' LIKE upper(last_name) and department_id = 30) or manager_id = 102;
+
+--ex20
+SELECT last_name, job_id, salary from employees
+where (upper(job_id) like '%CLERK%' OR upper(job_id) like '%REP%') and salary NOT IN (1000, 2000, 3000);
+
+--ex15
+SELECT last_name, job_id, manager_id
+from employees
+where manager_id is null;
+
+--ex16
+select last_name, salary, commission_pct FROM employees
+WHERE commission_pct is not null
+ORDER BY salary desc, commission_pct desc;
+--var2
+select last_name, salary, commission_pct FROM employees
+WHERE commission_pct is not null
+ORDER BY -salary, -commission_pct;
+--var 3
+select last_name, salary, commission_pct FROM employees
+WHERE commission_pct is not null
+ORDER BY -2, -3;
+
+--ex17
+select last_name, salary, commission_pct FROM employees
+ORDER BY salary desc, commission_pct nulls first;
+--la ordonare crescatoare pune nullurile la final
+--la ordonare descatoare valorile null sunt plasate primele

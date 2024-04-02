@@ -1,0 +1,113 @@
+13. Să se afişeze numele angajaţilor şi comisionul. Dacă un angajat nu câştigă comision, să
+se scrie “Fara comision”. Etichetaţi coloana “Comision”.
+
+desc employees; --describe
+select * from employees;
+
+NVL(expr_1, expr_2) - daca expr1 este null, atunci returneaza expr2
+                    - altfel returneaza expr1;
+!!! Tipurile de date ale celor 2 expresii trebuie sa fie compatibile
+sau expr2 sa se converteasca automat la expr1
+select last_name, NVL(commission_pct, 'Fara comision')  "COMISION"
+from employees;
+--solutia??
+--facem o conversie explicita 
+select last_name, NVL(TO_CHAR(commission_pct, '0.99'), 'Fara comision')  "COMISION"
+from employees;
+select TO_CHAR('4.25', '99.99') from dual;
+
+--ex15
+SELECT last_name, job_id, salary,
+ CASE WHEN job_id = 'IT_PROG' THEN salary * 1.1
+ WHEN job_id ='ST_CLERK' THEN salary * 1.15
+ WHEN job_id ='SA_REP' THEN salary*1.2
+ ELSE salary
+ END "Salariu renegociat"
+FROM employees;
+
+--ex15 m2)
+SELECT last_name, job_id, salary,
+ DECODE(job_id, 'IT_PROG', salary * 1.1,
+ 'ST_CLERK', salary * 1.15,
+ 'SA_REP', salary * 1.2,
+ salary ) "Salariu renegociat"
+FROM employees;
+
+--ex 13 (CASE)
+select last_name, 
+       CASE WHEN commission_pct is null THEN 'Fara comision'
+            ELSE TO_CHAR(commission_pct, '0.99')
+        END "Comision"
+from employees;
+
+--ex13(decode)
+select last_name, 
+       decode(commission_pct, null, 'Fara comision', commission_pct)  "Comision"
+from employees;
+
+--ex14
+--14. Să se listeze numele, salariul şi comisionul tuturor angajaţilor al căror venit lunar (salariu + valoare comision) depăşeşte 10 000
+--venit lunar = salary + salary * commission_pct;
+--INCERCARE
+select salary + salary * commission_pct "VENIT LUNAR" from employees;
+select 13000 + null*13000 from dual; --orice operatie matematica cu null da null
+--solutia
+SELECT last_name, salary, commission_pct
+FROM employees
+WHERE  salary + salary * NVL(commission_pct, 0) > 10000;
+
+--ex16
+select employee_id, department_name
+from employees, departments; --produs cartezian
+
+--conditia de join scrisa in where
+select employee_id, department_name, d.department_id
+from employees e, departments d
+where e.department_id = d.department_id;
+
+--acelasi lucru
+select employee_id, department_name, e.department_id
+from employees e, departments d
+where e.department_id = d.department_id;
+
+--join scris in from, utilizand on
+--varianta din standardul SQL3
+select employee_id, department_name, d.department_id
+from employees e JOIN departments d ON (e.department_id = d.department_id);
+
+--join scris in from, utilizand USING, atunci când avem coloane cu același nume
+--varianta din standardul SQL3
+select employee_id, department_name, department_id
+from employees JOIN departments USING (department_id);
+
+--Ce observați având în vedere numărul de rânduri returnate?
+--106 angajati din total de 107 deoarece un angajat nu are departament
+
+--Dorim sa afisam si angajatii care nu au departament
+--afisam angajatii care au departament plus angajatii care nu au departament
+--se utilizeaza simbolul (+) in partea deficitara de informatie
+
+select employee_id, department_name, e.department_id
+from employees e, departments d
+where e.department_id = d.department_id (+);
+
+--afisam departamentele care au angajat plus departamentele care nu au angajati
+select employee_id, department_name, d.department_id, last_name, salary
+from employees e, departments d
+where e.department_id (+) = d.department_id;
+
+--ex 17. Să se listeze codurile și denumirile job-urilor care există în departamentul 30.
+select distinct j.job_id, job_title
+from jobs j, employees e
+where j.job_id = e.job_id and
+      department_id = 30;
+
+
+select * from departments;
+--ex 18. Să se afişeze numele angajatului, numele departamentului şi id-ul locației pentru toţi angajaţii care câştigă comision.
+SELECT employee_id, last_name, department_name, l.location_id
+FROM employees e, departments d, locations l
+WHERE e.department_id = d.department_id 
+    AND d.location_id = l.location_id  
+    AND commission_pct is not null ;
+

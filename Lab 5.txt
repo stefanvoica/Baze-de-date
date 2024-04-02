@@ -1,0 +1,187 @@
+20. Să se afişeze codul angajatului şi numele acestuia, împreună cu numele şi codul
+şefului său direct. Se vor eticheta coloanele Ang#, Angajat, Mgr#, Manager.
+
+desc employees;
+select * from employees;
+SELECT ang.employee_id Ang#, ang.last_name Angajat, sef.employee_id Mgr#,
+sef.last_name Manager
+FROM employees ang, employees sef
+WHERE ang.manager_id = sef.employee_id;
+
+21. Să se modifice cererea anterioară pentru a afişa toţi salariaţii, inclusiv cei care nu au şef.
+
+--simbolul (+) in partea deficitara de informatie
+--afisam si salariatii care NU AU sef
+SELECT ang.employee_id Ang#, ang.last_name Angajat, sef.employee_id Mgr#,
+sef.last_name Manager
+FROM employees ang, employees sef
+WHERE ang.manager_id = sef.employee_id (+);
+
+22. Scrieţi o cerere care afişează numele angajatului, codul departamentului în care
+acesta lucrează şi numele colegilor săi de departament. Se vor eticheta coloanele
+corespunzător.
+
+select ang.last_name "NUME ANGAJAT", ang.department_id "DEPARTAMENT", coleg.last_name "Nume coleg"
+from employees ang, employees coleg
+where ang.department_id =  coleg.department_id and ang.employee_id > coleg.employee_id;
+
+23. Creaţi o cerere prin care să se afişeze numele angajatilor, codul job-ului, titlul job-ului,
+numele departamentului şi salariul angajaţilor. Se vor include și angajații al căror
+departament nu este cunoscut.
+
+SELECT last_name, j.job_id, job_title, department_name, salary
+FROM employees e, departments d, jobs j
+WHERE e.department_id = d.department_id (+)
+AND j.job_id = e.job_id;
+
+24. Să se afişeze numele şi data angajării pentru salariaţii care au fost angajaţi după Gates.
+
+SELECT ang.last_name NumeAng, ang.hire_date DataAng,
+gates.last_name NumeGates, gates.hire_date DataGates
+FROM employees ang, employees gates
+WHERE ang.hire_date > gates.hire_date
+AND upper(gates.last_name) = 'GATES';
+
+
+25. Să se afişeze numele salariatului şi data angajării împreună cu numele şi data angajării
+şefului direct pentru salariaţii care au fost angajaţi înaintea şefilor lor. Se vor eticheta
+coloanele Angajat, Data_ang, Manager si Data_mgr.
+
+SELECT ang.last_name Angajat, ang.hire_date Data_Ang, m.last_name Manager,
+m.hire_date Data_mgr
+FROM employees ang, employees m
+WHERE ang.manager_id = m.employee_id --managerul sa fie si el un angajat la randul lui
+AND ang.hire_date < m.hire_date;
+
+-- RECAPITULARE JOIN
+
+-- Join-ul este operaţia de regăsire a datelor din două sau mai multe tabele, 
+-- pe baza valorilor comune ale unor coloane. De obicei, aceste coloane reprezintă 
+-- cheia primară, respectiv cheia externă a tabelelor. 
+-- Reamintim că pentru a realiza un join între n tabele
+-- o sa fie nevoie de cel puţin n – 1 condiţii de join
+
+
+--TIPURI DE JOIN:
+
+-- NONEQUIJOIN – condiţia de join conţine alţi operatori decât operatorul de egalitate
+--Exemplu Nonequijoin:
+
+SELECT last_name, salary, grade_level, lowest_sal, highest_sal
+FROM employees, job_grades
+WHERE salary BETWEEN lowest_sal AND highest_sal;
+
+SELECT * FROM job_grades;
+
+
+-- INNER JOIN (equijoin, join simplu) 
+-- corespunde situaţiei în care valorile de pe coloanele ce apar în condiţia 
+-- de join trebuie să fie egale
+
+--EXEMPLE (folosind atat join-ul in WHERE cat si cel din standardul SQL3):
+
+-- VARIANTA 1 - Condiția de Join este scrisă în clauza WHERE a instrucțiunii SELECT 
+SELECT employee_id, last_name, department_name, d.department_id
+FROM employees e, departments d
+WHERE e.department_id = d.department_id; 
+
+
+-- VARIANTA 2 - --JOIN SCRIS IN FROM (standardul SQL3) - folosind ON
+SELECT employee_id, last_name, department_name, d.department_id
+FROM employees e join departments d ON (e.department_id = d.department_id);
+     
+
+-- JOIN SCRIS IN FROM (standardul SQL3) - folosind USING
+-- USING SE UTILIZEAZA dacă există coloane având acelasi nume
+-- in acest caz coloanele referite nu trebuie sa contina calificatori 
+-- adica sa nu fie precedate de nume de tabele sau alias-uri
+
+SELECT employee_id, last_name, department_name, department_id
+FROM employees JOIN departments USING(department_id);
+
+-- Cele doua variante (join in where si join in from) sunt echivalente.
+
+
+-- OUTER JOIN
+
+-- pentru a afisa si angajatii care nu au departament se utilizeaza 
+-- simbolul (+) in partea deficitara de informatie
+
+-- deficit de informatie -> angajati FARA departament 
+SELECT employee_id, last_name, d.department_id, department_name
+FROM employees e, departments d
+WHERE e.department_id = d.department_id (+);
+
+-- deficit de informatie -> departamente FARA angajati 
+SELECT employee_id, last_name, d.department_id, department_name
+FROM employees e, departments d
+WHERE e.department_id (+) = d.department_id;
+
+
+-- In cazul standardului SQL3 se utilizeaza LEFT, RIGHT şi FULL OUTER JOIN
+-- DISCUTIE!
+
+--  Afisam angajatii care lucreaza in departmante.
+-- plus angajatii care nu au departament
+-- AFISAM TOTI ANGAJATII CHIAR DACA AU SAU NU AU DEPARTAMENT
+--LEFT JOIN
+SELECT employee_id, last_name, department_name, d.department_id
+FROM employees e left join departments d ON (e.department_id = d.department_id);
+
+--RIGHT JOIN
+--Afisam departamentele care contin angajati
+--plus departamentele care nu au angajati
+--AFISAM TOATE DEPARTAMENTE
+SELECT employee_id, last_name, department_name, d.department_id
+FROM employees e right join departments d ON (e.department_id = d.department_id);
+
+--FULL JOIN
+--Afisam angajatii care au departament
+--plus angajatii care nu au departament
+--plus departamentele care nu au angajati
+
+SELECT employee_id, last_name, department_name, d.department_id
+FROM employees e full join departments d ON (e.department_id = d.department_id);
+
+
+-- CROSS JOIN - produs cartezian
+SELECT employee_id, last_name, e.department_id, department_name
+FROM employees e CROSS JOIN departments d;
+
+
+-- NATURAL JOIN 
+SELECT last_name, job_id, job_title                       
+FROM employees NATURAL JOIN jobs;   
+
+SELECT last_name, e.job_id, job_title 
+FROM employees e, jobs j 
+WHERE e.job_id = j.job_id;
+
+1. Scrieți o cerere pentru a se afisa numele, luna (în litere) şi anul angajării pentru toți
+salariații din acelasi departament cu Gates, al căror nume conţine litera “a”. Se va
+exclude Gates.
+
+select ang.last_name, to_char(ang.hire_date, 'month-yyyy')
+from employees ang join employees gates on (ang.department_id = gates.department_id)
+where lower(gates.last_name) = 'gates' and lower(ang.last_name) like '%a%'
+and lower(ang.last_name) != 'gates';
+
+2. Să se afișeze codul şi numele angajaţilor care lucrează în același departament cu
+cel puţin un angajat al cărui nume conţine litera “t”. Se vor afişa, de asemenea, codul şi
+numele departamentului respectiv. Rezultatul va fi ordonat alfabetic după nume.
+
+select e.employee_id "COD ANGAJAT", e.last_name "NUME ANGAJAT", d.department_id, 
+department_name, 
+coleg.last_name "NUME COLEG"
+from employees e join department d on (e.department_id = d.department_id) 
+                 join employees coleg on (coleg.department_id = e.department_id)
+where e.employee_id < coleg.employee_id and lower(coleg.last_name) like '%t%t'
+order by e.last_name;
+
+
+---23(lab 2)
+--dorim sa afisam angajatii care lucreaza in departamente dar si departamentele care nu au angajati
+--=>afisam toate departamentele
+SELECT last_name, e.department_id, department_name, salary, job_title
+FROM employees e right join departments d on (e.department_id = d.department_id)
+                 left join jobs j on (j.job_id = e.job_id);

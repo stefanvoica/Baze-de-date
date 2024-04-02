@@ -1,0 +1,83 @@
+SELECT RTRIM('XinfoXxXabc', 'bacX') FROM dual;
+
+SELECT TRANSLATE('$a$aaads','$ad','bc') from dual;
+
+SELECT MONTHS_BETWEEN('07-
+MAR-2020', '10-FEB-2029')  from dual;
+
+SELECT TO_DATE('07-03-2024', 'DD-MM-YYYY') + 3 from DUAL;
+--EXPR_DATA +/- NUMBER -> PRIMUL PARAM NU ESTE O DATA CALENDARISTICA!!
+--returneaza '10-MAR-24'
+--ci converteste dupa formatul din baza de date
+
+--dorim formatul de tipul mon
+SELECT  TO_CHAR(TO_DATE('07-03-2024', 'DD-MM-YYYY') + 3, 'DD-MM-YYYY') Data
+from DUAL;
+
+--NUMARUL de zile dintre cele doua date calendaristice
+SELECT ROUND(SYSDATE - TO_DATE('19/07/2004', 'DD/MM/YYYY'),2) from dual;
+
+NVL(expr1, expr2) - tipurile de date trebuie sa fie compatibile sau expr2 sa se conv automat la expr1
+select nvl(1,'a') from dual; --daca expr1 este diferita de null => returneaza expr2
+--tipuri de date incompatibile
+-- nu se poate aplica o conv implicita
+
+--cum rezolvam?
+--FACEM CONVERSIE EXPLICITA
+SELECT nvl(to_char(1), 'a') from dual; -- => avem in acest caz tipuri compatibile
+
+--ex1
+SELECT CONCAT(CONCAT(last_name, ' '),first_name) || ' castiga' || salary || ' dar doreste ' ||
+    salary*3 "Salariu ideal"
+FROM employees;
+
+--ex4
+select employee_id "COD", last_name "NUME", length(last_name) "LUNGIME", 
+    instr(upper(last_name), 'A') "POS"
+from employees
+where upper(last_name) like '%E';
+
+select employee_id "COD", last_name "NUME", length(last_name) "LUNGIME", 
+    instr(upper(last_name), 'A') "POS"
+from employees
+where substr(upper(last_name), -1) = 'E';
+
+
+--ex 5
+select * from employees
+where round(sysdate - hire_date) % 7 == 0;
+
+select * from employees
+where mod(round(sysdate - hire_date), 7) = 0;
+
+--ex 6 
+SELECT employee_id, last_name, salary,
+round(salary + 0.15 * salary, 2) "Salariu Nou",
+round((salary + 0.15 * salary) / 100, 2) "Numar sute"
+FROM employees
+WHERE mod(salary, 1000) !=0;
+
+--ex7
+SELECT last_name AS "Nume angajat" , RPAD(to_char(hire_date),20,'X') "Data
+angajarii"
+FROM employees
+WHERE commission_pct is not null;
+
+--ex 8
+SELECT to_char (sysdate + 30 , 'MONTH DD YYYY HH24:MI:SS') "Data"
+FROM DUAL;
+
+--ex9
+SELECT to_date('31-12-2024','dd-mm-yyyy') - sysdate
+FROM dual;
+
+--ex10a
+SELECT TO_CHAR(SYSDATE + 12/24, 'DD/MM HH24:MI:SS') "Data"
+FROM DUAL;
+
+--ex10b
+SELECT TO_CHAR(SYSDATE + 5/60/24, 'DD/MM HH24:MI:SS') "Data"
+FROM DUAL;
+
+1h ... 60  min
+x .... 5 min regula de 3 simpla
